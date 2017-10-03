@@ -35,7 +35,7 @@ def create_tag(tag_name, branch_name, push):
 
     # pull down latest
     try:
-        repo.remotes.origin.fetch(verbose=False)
+        repo.remotes.origin.fetch(depth=1, tags=True, refspec=branch_name)
     except git.GitCommandError as e:
         return ':exclamation: Failed. {}'.format(_clean_up_error_message(e))
 
