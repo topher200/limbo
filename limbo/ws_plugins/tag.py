@@ -28,7 +28,10 @@ def create_tag(tag_name, branch_name, push):
         pass
 
     # pull down latest
-    repo.remotes.origin.fetch()
+    try:
+        repo.remotes.origin.fetch()
+    except git.GitCommandError as e:
+        return ':exclamation: Failed. {}'.format(e.stderr.strip())
 
     # create the tag
     try:
@@ -38,17 +41,20 @@ def create_tag(tag_name, branch_name, push):
             message='Tagging {} as {}. Created by Wordy'.format(branch_name, tag_name),
         )
     except git.GitCommandError as e:
-        return 'Failed. {}'.format(e.stderr.strip())
+        return ':exclamation: Failed. {}'.format(e.stderr.strip())
 
     if push:
         # push the tag
-        repo.remotes.origin.push(tag)
+        try:
+            repo.remotes.origin.push(tag)
+        except git.GitCommandError as e:
+            return ':exclamation: Failed. {}'.format(e.stderr.strip())
 
-    return 'Tagging {} as {}'.format(branch_name, tag_name)
+    return ':white_check_mark: Tagged {} as {}'.format(branch_name, tag_name)
 
 
 def on_message(msg, _, **kwargs):
-    push = kwargs.get('push', False)
+    push = kwargs.get('push', True)
 
     text = msg.get("text", "")
     match = re.search(r"wordy tag (\S*) as (\S*)", text)
@@ -63,8 +69,8 @@ def on_message(msg, _, **kwargs):
         return
 
     if not branch_name.startswith('release-'):
-        return 'Unexpected branch name "%s". Expected it to start with "release-"!' % branch_name
+        return ':exclamation: Unexpected branch name "%s". Expected it to start with "release-"!' % branch_name
     if not tag_name.startswith('r6.0.gold.f'):
-        return 'Unexpected tag name "%s". Expected it to start with "r6.0.gold.f"!' % tag_name
+        return ':exclamation: Unexpected tag name "%s". Expected it to start with "r6.0.gold.f"!' % tag_name
 
     return create_tag(tag_name, branch_name, push)
