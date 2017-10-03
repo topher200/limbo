@@ -17,11 +17,11 @@ clean:
 
 .PHONY: run
 run: install
-	bin/limbo --pluginpath limbo/ws_plugins
+	source .env && bin/limbo --pluginpath limbo/ws_plugins
 
 .PHONY: repl
 repl: install
-	bin/limbo -t --pluginpath limbo/ws_plugins
+	source .env && bin/limbo -t --pluginpath limbo/ws_plugins
 
 .PHONY: requirements
 requirements:
