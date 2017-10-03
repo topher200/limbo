@@ -60,7 +60,7 @@ def create_tag(tag_name, branch_name, push):
 
 
 def on_message(msg, _, **kwargs):
-    push = kwargs.get('push', False)
+    push = kwargs.get('push', True)
 
     text = msg.get("text", "")
     match = re.search(r"wordy tag (\S*) as (\S*)", text)
