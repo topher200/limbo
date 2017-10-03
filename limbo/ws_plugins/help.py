@@ -1,4 +1,4 @@
-""""wordy help" prints help on all commands. use "wordy help <command>" for more detail"""
+""""wordy help" prints help on all commands. use "wordy help <command>" for more details on a specific command"""
 
 import re
 
