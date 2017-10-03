@@ -14,6 +14,12 @@ GIT_REPO_URL = os.environ.get("WORDY_GIT_REPO_URL")
 assert GIT_REPO_URL is not None, os.environ
 
 
+def _clean_up_error_message(e):
+    # clean up the error message. truncate if too long
+    err = e.stderr.strip()
+    return err[:200]
+
+
 def create_tag(tag_name, branch_name, push):
     # create the repo dir
     if not os.path.exists(GIT_REPO_LOCAL_DIR):
@@ -31,7 +37,7 @@ def create_tag(tag_name, branch_name, push):
     try:
         repo.remotes.origin.fetch(verbose=False)
     except git.GitCommandError as e:
-        return ':exclamation: Failed. {}'.format(e.stderr.strip())
+        return ':exclamation: Failed. {}'.format(_clean_up_error_message(e))
 
     # create the tag
     try:
@@ -41,14 +47,14 @@ def create_tag(tag_name, branch_name, push):
             message='Tagging {} as {}. Created by Wordy'.format(branch_name, tag_name),
         )
     except git.GitCommandError as e:
-        return ':exclamation: Failed. {}'.format(e.stderr.strip())
+        return ':exclamation: Failed. {}'.format(_clean_up_error_message(e))
 
     if push:
         # push the tag
         try:
             repo.remotes.origin.push(tag)
         except git.GitCommandError as e:
-            return ':exclamation: Failed. {}'.format(e.stderr.strip())
+            return ':exclamation: Failed. {}'.format(_clean_up_error_message(e))
 
     return ':white_check_mark: Tagged {} as {}'.format(branch_name, tag_name)
 
