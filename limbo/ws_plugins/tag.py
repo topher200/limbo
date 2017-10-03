@@ -29,7 +29,7 @@ def create_tag(tag_name, branch_name, push):
 
     # pull down latest
     try:
-        repo.remotes.origin.fetch()
+        repo.remotes.origin.fetch(verbose=False)
     except git.GitCommandError as e:
         return ':exclamation: Failed. {}'.format(e.stderr.strip())
 
@@ -54,7 +54,7 @@ def create_tag(tag_name, branch_name, push):
 
 
 def on_message(msg, _, **kwargs):
-    push = kwargs.get('push', True)
+    push = kwargs.get('push', False)
 
     text = msg.get("text", "")
     match = re.search(r"wordy tag (\S*) as (\S*)", text)
