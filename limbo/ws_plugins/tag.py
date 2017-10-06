@@ -59,7 +59,7 @@ def create_tag(tag_name, branch_name, push):
     return ':white_check_mark: Tagged {} as {}'.format(branch_name, tag_name)
 
 
-def on_message(msg, _, **kwargs):
+def on_message(msg, server, **kwargs):
     push = kwargs.get('push', True)
 
     text = msg.get("text", "")
@@ -78,5 +78,8 @@ def on_message(msg, _, **kwargs):
         return ':exclamation: Unexpected branch name "%s". Expected it to start with "release-"!' % branch_name
     if not tag_name.startswith('r6.0.gold.f'):
         return ':exclamation: Unexpected tag name "%s". Expected it to start with "r6.0.gold.f"!' % tag_name
+
+    # tagging can take a while. tell the channel we're working on it...
+    server.slack.rtm_send_message(msg['channel'], 'Tagging...')
 
     return create_tag(tag_name, branch_name, push)
