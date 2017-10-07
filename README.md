@@ -14,7 +14,7 @@
 * --test, -t: Enter command line mode to enter a limbo repl.
 * --hook: Specify the hook to test. (Defaults to "message").
 * -c: Run a single command.
-* --database, -d: Where to store the limbo tinydb database. Defaults to log.json.
+* --database, -d: Where to store the limbo sqlite3 database. Defaults to limbo.sqlite3.
 * --pluginpath, -pp: The path where limbo should look to find its plugins (defaults to /plugins).
 
 ## Environment Variables
@@ -25,7 +25,7 @@ Create a .env file with these variables:
 * LIMBO_LOGLEVEL: The logging level. Defaults to INFO.
 * LIMBO_LOGFILE: File to log info to. Defaults to none.
 * LIMBO_LOGFORMAT: Format for log messages. Defaults to `%(asctime)s:%(levelname)s:%(name)s:%(message)s`.
-* LIMBO_PLUGINS: Comma-delimited string of plugins to load. Defaults to loading all plugins in the plugins directory (which defaults to "/plugins")
+* LIMBO_PLUGINS: Comma-delimited string of plugins to load. Defaults to loading all plugins in the plugins directory (which defaults to "limbo/plugins")
 
 ## Commands
 
