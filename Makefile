@@ -9,7 +9,7 @@ testall: requirements
 # pytest -s test/test_plugins/test_image.py
 .PHONY: test
 test: install
-	source ./.env && LANG=en_US.UTF-8 pytest --cov=limbo --cov-report term-missing
+	source ./.env && LANG=en_US.UTF-8 pytest --cov=limbo --cov-report term-missing test
 
 .PHONY: clean
 clean:
