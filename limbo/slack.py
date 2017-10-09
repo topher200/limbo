@@ -1,8 +1,8 @@
 from collections import namedtuple
 import json
-import requests
 from ssl import SSLError
-import time
+
+import requests
 from websocket import create_connection
 
 # python 2.7.9+ and python 3 have this error
@@ -11,29 +11,47 @@ try:
 except ImportError:
     SSLWantReadError = SSLError
 
-try:
-    # Try for Python3
-    from urllib.parse import urlencode
-    from urllib.request import urlopen
-except:
-    # Looks like Python2
-    from urllib import urlencode
-    from urllib2 import urlopen
-
 # Exceptions
 class SlackNotConnected(Exception): pass
 class SlackConnectionError(Exception): pass
 class SlackLoginError(Exception): pass
 
+
 User = namedtuple('User', 'id name real_name tz')
 Bot = namedtuple('Bot', 'id name icons deleted')
 Channel = namedtuple('Channel', 'id name')
+
+def dig(obj, *keys):
+    """
+    Return obj[key_1][key_2][...] for each key in keys, or None if any key
+    in the chain is not found
+
+    So, given this `obj`:
+
+    {
+        "banana": {
+            "cream": "pie"
+        }
+    }
+
+    dig(obj, "banana") -> {"cream": "pie"}
+    dig(obj, "banana", "cream") -> "pie"
+    dig(obj, "banana", "rama") -> None
+    dig(obj, "Led", "Zeppelin") -> None
+    """
+    for key in keys:
+        if not obj or key not in obj:
+            return None
+        obj = obj[key]
+    return obj
+
 
 class SlackClient(object):
     def __init__(self, token):
         self.token = token
         self.username = None
         self.userid = None
+        self.team_id = None
         self.domain = None
         self.login_data = None
         self.websocket = None
@@ -78,7 +96,6 @@ class SlackClient(object):
             elif data["type"] == "team_join":
                 user = data["user"]
                 self.parse_users([user])
-            pass
 
     def rtm_connect(self, reconnect=False):
         reply = self.do("rtm.connect")
@@ -87,10 +104,10 @@ class SlackClient(object):
         else:
             login_data = reply.json()
             if login_data["ok"]:
-                self.ws_url = login_data['url']
+                ws_url = login_data['url']
                 if not reconnect:
                     self.parse_slack_login_data(login_data)
-                self.connect_slack_websocket(self.ws_url)
+                self.connect_slack_websocket(ws_url)
             else:
                 raise SlackLoginError
 
@@ -111,16 +128,10 @@ class SlackClient(object):
         except:
             raise SlackConnectionError
 
-    def _dig(self, obj, *keys):
-        for key in keys:
-            if not obj or key not in obj:
-                return None
-            obj = obj[key]
-        return obj
-
-    def get_all(self, api_method, collection_name):
+    def get_all(self, api_method, collection_name, **kwargs):
         """
-        Return all objects in an api_method and handle pagination.
+        Return all objects in an api_method, handle pagination, and pass
+        kwargs on to the method being called.
 
         For example, "users.list" returns an object like:
 
@@ -135,15 +146,16 @@ class SlackClient(object):
         will return all member objects to you while handling pagination
         """
         objs = []
+        limit = 25
         # if you don't provide a limit, the slack API won't return a cursor to you
-        page = json.loads(self.api_call(api_method, limit=25))
+        page = json.loads(self.api_call(api_method, limit=limit, **kwargs))
         while 1:
             for obj in page[collection_name]:
                 objs.append(obj)
 
-            cursor = self._dig(page, "response_metadata", "next_cursor")
+            cursor = dig(page, "response_metadata", "next_cursor")
             if cursor:
-                page = json.loads(self.api_call(api_method, cursor=cursor))
+                page = json.loads(self.api_call(api_method, cursor=cursor, limit=limit, **kwargs))
             else:
                 break
 
@@ -153,8 +165,8 @@ class SlackClient(object):
         # this call may or may not provide members for each channel, so
         # let's not rely on the members being in it. If we need them
         # (which I don't think we do?) we can get them later
-        for ch in self.get_all("channels.list", "channels"):
-            self.channels[ch["id"]] = Channel(ch['id'], ch["name"])
+        for chan in self.get_all("channels.list", "channels", exclude_members=True):
+            self.channels[chan["id"]] = Channel(chan['id'], chan["name"])
 
     def get_user_list(self):
         self.parse_users(self.get_all("users.list", "members"))
@@ -170,12 +182,12 @@ class SlackClient(object):
                 self.parse_bot_data(user)
                 continue
 
-            id = user['id']
+            uid = user['id']
             name = user['name']
             real_name = user['real_name']
             tz = user['tz']
 
-            self.users[user['id']] = User(id, name, real_name, tz)
+            self.users[user['id']] = User(uid, name, real_name, tz)
 
     def parse_bot_data(self, bot):
         self.bots[bot['id']] = Bot(bot['id'], bot['name'], bot.get('icons', ''), bot['deleted'])
@@ -196,8 +208,8 @@ class SlackClient(object):
         while True:
             try:
                 data.append(self.websocket.recv())
-            except (SSLError, SSLWantReadError) as e:
-                if e.errno == 2:
+            except (SSLError, SSLWantReadError) as err:
+                if err.errno == 2:
                     # errno 2 occurs when trying to read or write data, but more
                     # data needs to be received on the underlying TCP transport
                     # before the request can be fulfilled.
@@ -211,7 +223,8 @@ class SlackClient(object):
         reply = self.do(method, **kwargs)
         return reply.text
 
-    def do(self, request, post_data={}, files=None, **kwargs):
+    def do(self, request, post_data=None, files=None, **kwargs):
+        post_data = {} if not post_data else post_data
         url = 'https://slack.com/api/{0}'.format(request)
         post_data["token"] = self.token
         post_data.update(kwargs)
