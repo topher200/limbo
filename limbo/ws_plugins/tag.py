@@ -91,5 +91,6 @@ def on_message(msg, server, **kwargs):
 
     # tagging can take a while. tell the channel we're working on it...
     server.slack.rtm_send_message(msg['channel'], 'Tagging...')
+    server.slack.rtm_send_message(msg['channel'], 'Tagging...')
 
     return create_tag(tag_name, branch_name, push)
