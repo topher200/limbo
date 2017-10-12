@@ -63,7 +63,7 @@ def on_message(msg, server, **kwargs):
     push = kwargs.get('push', False)
 
     text = msg.get("text", "")
-    match = re.match(r"wordy tag (\S*) as (\S*)", text)
+    match = re.match(r"wordy tag (\S*) as (\S*)$", text)
     if not match:
         return
 
@@ -80,7 +80,7 @@ def on_message(msg, server, **kwargs):
         return ':exclamation: Unexpected tag name "%s". Expected it to start with "r6.0.gold.f"!' % tag_name
 
     # more restrictive regex, just to make sure the input is pristine
-    match = re.match(r'wordy tag (release-[-\d]+) as (r6.0.gold.f\d+)', text)
+    match = re.match(r'wordy tag (release-[-\d]+) as (r6.0.gold.f\d+)$', text)
     if not match:
         return ':exclamation: Invalid input, please try again'
     try:
