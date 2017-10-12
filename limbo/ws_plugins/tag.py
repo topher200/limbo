@@ -90,6 +90,6 @@ def on_message(msg, server, **kwargs):
         return ':exclamation: Invalid input, please try again'
 
     # tagging can take a while. tell the channel we're working on it...
-    server.slack.rtm_send_message(msg['channel'], 'Tagging...')
+    server.slack.post_message(msg['channel'], 'Tagging...')
 
     return create_tag(tag_name, branch_name, push)
