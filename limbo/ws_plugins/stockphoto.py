@@ -15,7 +15,7 @@ def stock(searchterm):
     url = "https://www.shutterstock.com/search?searchterm={0}".format(searchterm)
     r = requests.get(url)
     soup = BeautifulSoup(r.text, "html5lib")
-    images = [x['src'] for x in soup.select('.img-wrap img')]
+    images = [x['src'] for x in soup.select('.img-wrap img')][:10]
     shuffle(images)
 
     return 'https:' + images[0] if images else ""
