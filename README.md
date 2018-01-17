@@ -9,6 +9,10 @@
 4. `make run` (or `make repl` for local testing)
 5. Invite Limbo into any channels you want it in, or just message it in #general. Try typing `!gif dubstep cat` to test it out
 
+![kitten mittens](http://i.imgur.com/xhmD6QO.png)
+
+I recommend that you always run limbo in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) so that you are running in a clean environment.
+
 ## Command Arguments
 
 * --test, -t: Enter command line mode to enter a limbo repl.
@@ -26,6 +30,8 @@ Create a .env file with these variables:
 * LIMBO_LOGFILE: File to log info to. Defaults to none.
 * LIMBO_LOGFORMAT: Format for log messages. Defaults to `%(asctime)s:%(levelname)s:%(name)s:%(message)s`.
 * LIMBO_PLUGINS: Comma-delimited string of plugins to load. Defaults to loading all plugins in the plugins directory (which defaults to "limbo/plugins")
+
+Note that if you are getting an error message about not seeing environment variables, you may be running limbo as `sudo`, which will clear the environment. Use a virtualenv and always run limbo as a user process!
 
 ## Commands
 
@@ -45,6 +51,7 @@ These are the current default plugins (only a few are enabled for Wordy):
 * [help](https://github.com/llimllib/limbo/wiki/Help-Plugin)
 * [image](https://github.com/llimllib/limbo/wiki/Image-Plugin)
 * [map](https://github.com/llimllib/limbo/wiki/Map-Plugin)
+* [poll](https://github.com/llimllib/limbo/wiki/Poll-Plugin)
 * [stock](https://github.com/llimllib/limbo/wiki/Stock-Plugin)
 * [stockphoto](https://github.com/llimllib/limbo/wiki/Stock-Photo-Plugin)
 * [weather](https://github.com/llimllib/limbo/wiki/Weather-Plugin)
@@ -72,3 +79,5 @@ These are the current default plugins (only a few are enabled for Wordy):
 * [@rnagle](https://github.com/rnagle)
 * [@topher200](https://github.com/topher200)
 * [@StewPoll](https://github.com/StewPoll)
+* [@eSoares](https://github.com/eSoares)
+* [@sweinstein89](https://github.com/sweinstein89)
